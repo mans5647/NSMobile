@@ -376,9 +376,7 @@ public class StatusFragment extends Fragment implements AppStateListener, MenuPr
     }
 
     private void refreshStatus() {
-        if(mActivity != null)
-            appStateChanged(mActivity.getState());
-        recheckFilterWarning();
+
     }
 
     private void openAppFilterSelector() {

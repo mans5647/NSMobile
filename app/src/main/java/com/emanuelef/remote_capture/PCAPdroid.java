@@ -51,7 +51,7 @@ import cat.ereza.customactivityoncrash.config.CaocConfig;
  * https://stackoverflow.com/questions/56496714/android-webview-causing-runtimeexception-at-webviewdelegate-getpackageid
  */
 public class PCAPdroid extends Application {
-    private static final String TAG = "PCAPdroid";
+    private static final String TAG = "NS Mobile";
     private MatchList mVisMask;
     private MatchList mMalwareWhitelist;
     private MatchList mFirewallWhitelist;

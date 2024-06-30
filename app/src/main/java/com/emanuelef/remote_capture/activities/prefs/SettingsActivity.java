@@ -164,21 +164,7 @@ public class SettingsActivity extends BaseActivity implements PreferenceFragment
 
             setupUdpExporterPrefs();
             setupHttpServerPrefs();
-            setupTrafficInspectionPrefs();
-            setupCapturePrefs();
-            setupSecurityPrefs();
-            setupOtherPrefs();
 
-            socks5ProxyHideShow(mTlsDecryption.isChecked(), rootCaptureEnabled());
-            mBlockQuic.setVisible(!rootCaptureEnabled());
-            rootCaptureHideShow(rootCaptureEnabled());
-
-            Intent intent = requireActivity().getIntent();
-            if(intent != null) {
-                String target_pref = intent.getStringExtra(TARGET_PREF_EXTRA);
-                if(target_pref != null)
-                    scrollToPreference(target_pref);
-            }
         }
 
         @Override

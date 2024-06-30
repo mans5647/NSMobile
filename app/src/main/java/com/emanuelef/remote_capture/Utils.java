@@ -1,21 +1,3 @@
-/*
- * This file is part of PCAPdroid.
- *
- * PCAPdroid is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PCAPdroid is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with PCAPdroid.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright 2020-22 - Emanuele Faranda
- */
 
 package com.emanuelef.remote_capture;
 
@@ -695,7 +677,7 @@ public class Utils {
     public static String getUniqueFileName(Context context, String ext) {
         Locale locale = getPrimaryLocale(context);
         final DateFormat fmt = new SimpleDateFormat("dd_MMM_HH_mm_ss", locale);
-        return  "PCAPdroid_" + fmt.format(new Date()) + "." + ext;
+        return  "NSMobile_" + fmt.format(new Date()) + "." + ext;
     }
 
     public static String getUniquePcapFileName(Context context, boolean pcapng_format) {
@@ -836,7 +818,7 @@ public class Utils {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             // On Android Q+ cannot directly access the external dir. Must use RELATIVE_PATH instead.
             // Important: trailing "/" required for the selectQuery
-            String relPath = Environment.DIRECTORY_DOWNLOADS + "/PCAPdroid/";
+            String relPath = Environment.DIRECTORY_DOWNLOADS + "/NSMobile/";
             selectQuery = MediaStore.MediaColumns.RELATIVE_PATH + "='" + relPath + "' AND " +
                 MediaStore.MediaColumns.DISPLAY_NAME + "='" + fname + "'";
             values.put(MediaStore.MediaColumns.RELATIVE_PATH, relPath);
@@ -850,7 +832,7 @@ public class Utils {
 
             // NOTE: context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) returns an app internal folder
             File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            File folder = new File(downloadsDir + "/PCAPdroid");
+            File folder = new File(downloadsDir + "/NSMobile");
             try {
                 folder.mkdirs();
             } catch (Exception ignored) {}

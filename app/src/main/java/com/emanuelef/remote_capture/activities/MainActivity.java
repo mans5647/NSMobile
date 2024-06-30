@@ -129,7 +129,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             registerForActivityResult(new StartActivityForResult(), this::sslkeyfileExportResult);
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new RequestPermission(), isGranted ->
-                Log.d(TAG, "Write permission " + (isGranted ? "granted" : "denied"))
+                    Log.d(TAG, "Write permission " + (isGranted ? "granted" : "denied"))
             );
     private final ActivityResultLauncher<Intent> peerInfoLauncher =
             registerForActivityResult(new StartActivityForResult(), this::peerInfoResult);
@@ -141,29 +141,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         setTheme(R.style.AppTheme_NoActionBar);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-        setTitle("PCAPdroid");
+        setTitle("NS Mobile");
         mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        int appver = Prefs.getAppVersion(mPrefs);
-        if(appver <= 0) {
-            // First run, start on-boarding
-            // only refresh app version on on-boarding done
-            Intent intent = new Intent(MainActivity.this, OnBoardingActivity.class);
-            startActivity(intent);
-            finish();
-            return;
-        } else {
-            if (appver < 73)
-                showWhatsNew();
-
-            Prefs.refreshAppVersion(mPrefs);
-        }
-
-        mIab = Billing.newInstance(this);
-        mIab.setLicense(mIab.getLicense());
-
-        initPeerAppInfo();
-        initAppState();
         checkPermissions();
 
         mCapHelper = new CaptureHelper(this, true);
@@ -174,7 +154,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             }
         });
 
-        mPager = findViewById(R.id.pager);
+
         setupTabs();
 
         /* Register for service status */
@@ -230,13 +210,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     protected void onResume() {
         super.onResume();
-
-        if(mNavView != null) {
-            Menu navMenu = mNavView.getMenu();
-            navMenu.findItem(R.id.tls_decryption).setVisible(Prefs.getTlsDecryptionEnabled(mPrefs) && !Prefs.isRootCaptureEnabled(mPrefs));
-        }
-
-        checkPaidDrawerEntries();
     }
 
     private void setupNavigationDrawer() {
@@ -252,43 +225,16 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         mNavView.setNavigationItemSelectedListener(this);
         View header = mNavView.getHeaderView(0);
 
-        TextView appVer = header.findViewById(R.id.app_version);
-        String verStr = Utils.getAppVersion(this);
-        appVer.setText(verStr);
-        appVer.setOnClickListener((ev) -> {
-            // e.g. it can be "1.5.2" or "1.5.2-2f2d3c8"
-            String ref = verStr;
-            int sep = ref.indexOf('-');
-            if(sep != -1)
-                ref = ref.substring(sep + 1);
 
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(GITHUB_PROJECT_URL + "/tree/" + ref));
-            Utils.startActivity(this, browserIntent);
-        });
     }
 
     private void showWhatsNew() {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.whats_new)
-                .setMessage(
-                        "- Select multiple target apps\n" +
-                        "- Button to copy the connections payload\n" +
-                        "- Android 14 support\n" +
-                        "- Integrations to run with Tor and DNSCrypt\n" +
-                        "- mitmproxy 10.1.6 and Doze fix\n" +
-                        "- Use your own mitmproxy addons (experimental)\n"
-                )
-                .setNeutralButton(R.string.ok, (dialogInterface, i) -> {})
-                .show();
+
     }
 
     // keep this in a separate function, used by play billing code
     private void checkPaidDrawerEntries() {
-        if(mNavView == null)
-            return;
-        Menu navMenu = mNavView.getMenu();
-        navMenu.findItem(R.id.malware_detection).setVisible(Prefs.isMalwareDetectionEnabled(this, mPrefs));
-        navMenu.findItem(R.id.firewall).setVisible(mIab.isFirewallVisible());
+
     }
 
     @Override
@@ -446,6 +392,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     private void setupTabs() {
         final MainStateAdapter stateAdapter = new MainStateAdapter(this);
+        mPager = findViewById(R.id.pager);
         mPager.setAdapter(stateAdapter);
 
         new TabLayoutMediator(findViewById(R.id.tablayout), mPager, (tab, position) ->
@@ -501,54 +448,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-
-        if(id == R.id.item_apps) {
-            if(CaptureService.getConnsRegister() != null) {
-                Intent intent = new Intent(MainActivity.this, AppsActivity.class);
-                startActivity(intent);
-            } else
-                Utils.showToast(this, R.string.start_capture_first);
-        } else if(id == R.id.malware_detection) {
-            Intent intent = new Intent(MainActivity.this, MalwareDetection.class);
-            startActivity(intent);
-        } else if(id == R.id.tls_decryption) {
-            Intent intent = new Intent(MainActivity.this, EditListActivity.class);
-            intent.putExtra(EditListActivity.LIST_TYPE_EXTRA, ListInfo.Type.DECRYPTION_LIST);
-            startActivity(intent);
-        } else if(id == R.id.firewall) {
-            Intent intent = new Intent(MainActivity.this, FirewallActivity.class);
-            startActivity(intent);
-        } else if(id == R.id.open_log) {
-            Intent intent = new Intent(MainActivity.this, LogviewActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.action_donate) {
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(DONATE_URL));
-            Utils.startActivity(this, browserIntent);
-        } else if (id == R.id.action_open_telegram) {
-            openTelegram();
-        } else if (id == R.id.action_open_user_guide) {
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(DOCS_URL));
-            Utils.startActivity(this, browserIntent);
-        } else if (id == R.id.action_stats) {
-            if(mState == AppState.running) {
-                Intent intent = new Intent(MainActivity.this, StatsActivity.class);
-                startActivity(intent);
-            } else
-                Utils.showToast(this, R.string.start_capture_first);
-        } else if (id == R.id.action_about) {
-            Intent intent = new Intent(MainActivity.this, AboutActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.action_share_app) {
-            String description = getString(R.string.about_text);
-            String getApp = getString(R.string.get_app);
-            String url = "https://play.google.com/store/apps/details?id=com.emanuelef.remote_capture";
-
-            Intent intent = new Intent(android.content.Intent.ACTION_SEND);
-            intent.setType("text/plain");
-            intent.putExtra(android.content.Intent.EXTRA_TEXT, description + "\n" + getApp + "\n" + url);
-
-            Utils.startActivity(this, Intent.createChooser(intent, getResources().getString(R.string.share)));
-        }
 
         return false;
     }

@@ -97,27 +97,14 @@ public class FilterDescriptor implements Serializable {
         if(filteringStatus != FilteringStatus.INVALID) {
             String label = ctx.getString(R.string.firewall_filter, ctx.getString((filteringStatus == FilteringStatus.BLOCKED) ?
                     R.string.blocked_connection_filter : R.string.allowed_connection_filter));
-            addChip(inflater, group, R.id.firewall, label);
+
         }
         if(iface != null)
             addChip(inflater, group, R.id.capture_interface, String.format(ctx.getString(R.string.interface_filter), iface));
     }
 
     public void clear(int filter_id) {
-        if(filter_id == R.id.not_hidden)
-            showMasked = true;
-        else if(filter_id == R.id.blacklisted)
-            onlyBlacklisted = false;
-        else if(filter_id == R.id.only_cleartext)
-            onlyCleartext = false;
-        else if(filter_id == R.id.status_ind)
-            status = Status.STATUS_INVALID;
-        else if(filter_id == R.id.decryption_status)
-            decStatus = DecryptionStatus.INVALID;
-        else if(filter_id == R.id.firewall)
-            filteringStatus = FilteringStatus.INVALID;
-        else if(filter_id == R.id.capture_interface)
-            iface = null;
+
     }
 
     public void clear() {
